@@ -1,0 +1,7 @@
+teste 5 1 1 0 1 1 0 0 1 0 1
+grafo 3 1 0 1
+a 2 1
+jorge 4 1 0 0 1 0 1
+novo 3 1 1 0
+testeerro 3 1 0 1
+novoteste 2 1

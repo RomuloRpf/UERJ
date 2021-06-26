@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "listenc3.h"
+
+int main(void) 
+{
+  struct vetor *phead=NULL;
+  int tam,i,valor,valor2,b1,b2,e1,e2;
+  scanf("%d",&tam);
+  for(i=0;i<tam;i++)
+  {
+    scanf("%d %d",&valor,&valor2);
+    insereinicio(&phead,valor,valor2);
+  }
+  printf("sua busca?\n");
+  scanf("%d %d",&b1,&b2);
+  imprimechave(buscachave(b1,b2,phead));
+  printf("\n");
+  imprimelista(phead);
+  printf("excluir\n");
+  scanf("%d %d",&e1,&e2);
+  excluirelem(e1,e2, &phead);
+  imprimelista(phead);
+  limparlista(&phead);
+}
+
+struct vetor * criano(int x,int y)
+{
+  struct vetor *p=(struct vetor*)malloc(sizeof(struct vetor));
+  p->chave=x;
+  p->chave2=y;
+  return p;
+}
+
+void insereinicio(struct vetor**p,int x,int y)
+{
+  struct vetor*elem=criano(x,y);
+  elem->prox=(*p);
+  *p=elem;
+}
+
+void imprimelista(struct vetor*p)
+{
+  if(p)
+  {
+    imprimechave(p);
+    imprimelista(p->prox);
+  }
+  else
+  {
+    printf("\nfim da lista\n");
+  }
+}
+
+void imprimechave(struct vetor*e)
+{
+  if(e)
+  {
+    printf("(%hd,%hd)",e->chave,e->chave2);
+  }
+  else
+  {
+    printf("N encontrado");
+  }
+}
+
+void liberar(struct vetor*e)
+{
+  free(e);
+}
+
+void limparlista(struct vetor**p)
+{
+  if(*p)
+  {
+    limparlista(&(*p)->prox);
+    liberar(*p);
+    *p=NULL;
+  }
+}
+
+struct vetor* buscachave(int x, int y,struct vetor*p)
+{
+  if(p)
+  {
+    if((x==p->chave) && (y==p->chave2))
+    {
+      return p;
+    }
+    else
+    {
+      return buscachave(x,y, p->prox);
+    }
+  }
+  else return NULL;
+}
+
+void excluirelem(int x, int y,struct vetor**p)
+{
+  if(*p)
+  {
+    if((x==(*p)->chave)&&(y==(*p)->chave2))
+    {
+      struct vetor*e=*p;
+      *p=e->prox;
+      liberar(e);
+      printf("excluido"); 
+    }
+    else
+    {
+      excluirelem(x,y,&((*p)->prox));
+    }
+  }
+  else
+  {
+    printf("Nao encontrado");
+  }
+}
