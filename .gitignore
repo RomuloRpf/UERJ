@@ -1,4 +1,14 @@
 Algoritmos_em_Grafos/Materiais
+Algoritmos_em_Grafos/Trabalho_2020_1/bin
+Algoritmos_em_Grafos/Trabalho_2020_1/obj
 LP2/13.Excecoes.pdf
 LP2/JAVATUT14PDF.pdf
 LP1/Livros_e_referências
+*.out
+*.class
+*.o
+*.exe
+*.layout
+*.txt
+*.depend
+*.cbp
