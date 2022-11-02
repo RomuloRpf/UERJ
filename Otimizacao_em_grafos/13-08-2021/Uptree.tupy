@@ -1,0 +1,58 @@
+---    
+tipo UniãoDisjunta: 
+    inteiro  oculto pai[10]
+    #codifica uma floresta; cada componente conexa representa um conjunto; 
+    #se r ∈ C é raiz, Pai[r] = r
+    inteiro oculto N
+    visual Vis ~~
+    
+    #número máximo e corrente de elementos na lista
+    UniãoDisjunta():
+        N <- 0
+
+    Criação(inteiro p):
+        inteiro i
+        para i <- 1 até p inclusive:
+            pai[C.N+1], N <- N+1, N+1
+        Vis <- Uptree(); ~~
+    
+    inteiro Busca(inteiro p):
+        se pai[p] != p:
+            pai[p] <- Busca(pai[p])
+            retornar pai[p]
+        senão:
+            retornar p
+    
+    União(inteiro p, inteiro q):
+        inteiro Pp <- Busca(p)
+        inteiro Pq <- Busca(q)
+        se Pp < Pq:
+            pai[Pq] <- Pp
+        senão:
+            pai[Pp] <- Pq
+        Vis <- Uptree(); ~~
+        
+    ~~~
+    visual Uptree():
+        inteiro i
+        cadeia r <- "[[DOT digraph {"
+        para i <- 1 até N inclusive:
+            se pai[i] != i:
+                r <- r + cadeia(i) + "->" + cadeia(pai[i]) + "; " 
+            senão:
+                r <- r + cadeia(i) + "; "                 
+        r <- r + " rankdir=BT }]]"
+        retornar r
+    ~~~
+---
+inteiro i,j,k
+UniãoDisjunta C <- UniãoDisjunta()
+C.Criação(8)
+
+para i<-1..4 incl.:
+    j,k <-i+4, i
+    C.União(j,k)
+
+para i<-1..8 incl.:
+    j,k <-inteiro_aleatório(7)+1, inteiro_aleatório(7)+1
+    C.União(j,k)

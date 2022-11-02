@@ -1,0 +1,22 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Determinação de Graus (Matriz de Adjacência) em TuPy
+# Implementação por Paulo E. D. Pinto
+# Usa o G17. A linha abaixo (sem #) deve ser copiada p/ entrada: 
+# 8 12 1 2 1 4 1 5 2 3 2 6 3 4 3 7 4 8 5 6 5 8 6 7 7 8
+#---------------------------------------------------------------
+inteiro n, m
+inteiro oculto E[8, 8], D[8]
+visual VG <- grafo_MA(E) ~~
+visual VM <- matriz(E) ~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CriarGrafo():
+    inteiro i, u, v
+    ler (n, m)
+    E[*,*] <- 0
+    para i<-0..m:
+        ler(u, v)
+        E[u-1,v-1] <- E[v-1,u-1] <- 1
+        VG <- grafo_MA(E) ~~
+        VM <- matriz(E) ~~
+
+CriarGrafo()
