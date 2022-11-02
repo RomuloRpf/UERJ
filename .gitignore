@@ -4,6 +4,13 @@ Algoritmos_em_Grafos/Trabalho_2020_1/obj
 LP2/13.Excecoes.pdf
 LP2/JAVATUT14PDF.pdf
 LP1/Livros_e_referências
+Computacao_Grafica/Trabalho3
+Computacao_Grafica/PDF
+Computacao_Grafica/Opengl
+Otimizacao_em_grafos/27-08-2021
+Compiladores/PDF
+Compiladores/Provas de referencia
+Compiladores/trab_referencia
 *.out
 *.class
 *.o
@@ -12,3 +19,4 @@ LP1/Livros_e_referências
 *.txt
 *.depend
 *.cbp
+*.mp4
