@@ -10,3 +10,4 @@
 - [Otimização em Grafos](https://github.com/RomuloRpf/UERJ/tree/main/Otimizacao_em_grafos)
 - [Compiladores](https://github.com/RomuloRpf/UERJ/tree/main/Compiladores)
 - [Computação Gráfica](https://github.com/RomuloRpf/UERJ/tree/main/Computacao_Grafica)
+- [Programação Paralela e Distribuída](https://github.com/RomuloRpf/UERJ/tree/main/Programacao_Paralela_e_Distribuida/Minicurso_OpenMP)
