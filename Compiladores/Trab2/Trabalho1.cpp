@@ -127,6 +127,7 @@ char *readFile(char *fileName)
 	}
 	code[n] = '\0';
 	fclose(file);
+	free(file);
 	return code;
 }
 

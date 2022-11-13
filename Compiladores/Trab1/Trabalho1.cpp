@@ -105,6 +105,8 @@ char *readFile(char *fileName)
 		code[n++] = (char) c;
 	}
 	code[n] = '\0';
+	fclose(file);
+	free(file);
 	return code;
 }
 
