@@ -10,8 +10,7 @@ int main(int argc, char *argv[])
   h = 1.0 / (double)n;
   sum = 0.0;
 
-#pragma omp parallel for private(i, x) shared(h) reduction(+ \
-                                                           : sum)
+#pragma omp parallel for private(i, x) shared(h) reduction(+ : sum)
   for (i = 1; i <= n; i++)
   {
     x = h * ((double)i - 0.5);
