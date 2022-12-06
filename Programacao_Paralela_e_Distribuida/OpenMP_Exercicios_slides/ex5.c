@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
   }
   sum = 0;
 
-#pragma omp parallel for shared(a, b, n, sum) private(i) reduction(+ \
-                                                                   : sum)
+#pragma omp parallel for shared(a, b, n, sum) private(i) reduction(+ : sum)
   for (i = 1; i < n; i++)
   {
     sum = sum + a[i] * b[i];
