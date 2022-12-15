@@ -132,6 +132,6 @@ int main () {
 	free_board(next,size);
 	#if _OPENMP 
 		double end = omp_get_wtime() - start;
-		printf("time = %10.10lf", end);
+		printf("time = %10.10lf\n", end);
 	#endif
 }
