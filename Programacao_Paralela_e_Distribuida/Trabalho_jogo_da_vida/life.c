@@ -14,7 +14,6 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 typedef unsigned char cell_t; 
 
 cell_t ** allocate_board (int size) {
@@ -96,9 +95,6 @@ void read_file (FILE * f, cell_t ** board, int size) {
 }
 
 int main () {
-	#if _OPENMP 
-		double start = omp_get_wtime();
-	#endif
 	int size, steps;
 	FILE    *f;
   f = stdin;
@@ -128,8 +124,4 @@ int main () {
 	print (prev,size);
 	free_board(prev,size);
 	free_board(next,size);
-	#if _OPENMP 
-		double end = omp_get_wtime() - start;
-		printf("time = %10.10lf", end);
-	#endif
 }
