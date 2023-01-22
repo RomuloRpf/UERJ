@@ -53,45 +53,57 @@ int adjacent_to (cell_t ** board, int size, int i, int j) {
 	return count;
 }
 
-void play (cell_t ** board, cell_t ** newboard, int size, int numtasks, int rank) {
-	int	i, j, a, chuck, local_init, local_end, tag = 1;
+void play (cell_t ** board, cell_t ** newboard, int size, int numtasks, int rank, int flag) {
+	int	i, j, a, chuck, local_init, local_end, index, index_e, tag = 0;
 	MPI_Status Stat;
 
-	int resto = size % numtasks;
 	chuck = size / numtasks;
   	local_init = rank * chuck;
   	local_end = (rank + 1) * chuck;
-  	//if(rank == numtasks - 1) local_end = size;
-	if((rank != 0) && (rank != numtasks - 1)) {
-		resto = local_end;
-	}
-	else {
-		if(resto == 0) {
-			resto = local_end;
-		}
-		else {
-			resto = resto + local_end;
-		}
-	}
+  	if(rank == numtasks - 1) local_end = size;
+
 	//printf("task = %d, end = %d\n", rank, resto);
 	/* for each cell, apply the rules of Life */
-	for (i = local_init; i < resto; i++) {
+	for (i = local_init; i < local_end; i++) {
 		for (j=0; j<size; j++) {
-			if(i < local_end) {
 				a = adjacent_to (board, size, i, j);
 				if (a == 2) newboard[i][j] = board[i][j];
 				if (a == 3) newboard[i][j] = 1;
 				if (a < 2) newboard[i][j] = 0;
 				if (a > 3) newboard[i][j] = 0;
-			}
-		}
-		if(rank != 0){
-			MPI_Send(newboard[i], size, MPI_UNSIGNED_CHAR, 0, tag, MPI_COMM_WORLD);
-		}
-		else {
-    		MPI_Recv(newboard[i], size, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
 		}
 	}
+	if(flag == 1){
+		for(i=0; i<numtasks-1; i++){
+			if(rank == i){
+				index = local_init;
+			}
+			MPI_Bcast (&index, 1, MPI_INT, i, MPI_COMM_WORLD);
+			MPI_Bcast (newboard[index], size*chuck, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
+		}
+	}
+	else{
+		for(i=0; i<numtasks; i++){
+			if(rank == i){
+				index = local_init;
+				index_e = local_end - 1;
+			}
+			MPI_Bcast (&index, 1, MPI_INT, i, MPI_COMM_WORLD);
+			MPI_Bcast (newboard[index], size, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
+			MPI_Bcast (&index_e, 1, MPI_INT, i, MPI_COMM_WORLD);
+			MPI_Bcast (newboard[index_e], size, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
+		}
+	}
+	
+	/*if(rank != (numtasks-1)){
+		index = local_init;
+		MPI_Send(&index, 1, MPI_INT, (numtasks-1), tag, MPI_COMM_WORLD);
+		MPI_Send(&(newboard[index][0]), size*chuck, MPI_UNSIGNED_CHAR, (numtasks-1), tag, MPI_COMM_WORLD);
+	}
+	else {
+		MPI_Recv(&index, 1, MPI_INT, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
+    	MPI_Recv(&(newboard[index][0]), size*chuck, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
+	}*/
 }
 
 /* print the life board */
@@ -151,25 +163,28 @@ int main(int argc, char *argv[]) {
 
 	//print(prev,size,rank);
 
-	int i,j;
+	int i,j, flag = 0;
 	#ifdef DEBUG
 		printf("Initial \n");
 		print(prev,size);
 		printf("----------\n");
 	#endif
 	for (i=0; i<steps; i++) {
-		play (prev,next,size,numtasks,rank);
+		if(i == (steps-1)){
+			flag = 1;
+		}
+		play (prev,next,size,numtasks,rank,flag);
 		//print(next,size,rank);
 		#ifdef DEBUG
 			printf("%d ----------\n", i);
 			print (next,size);
 		#endif
-		MPI_Bcast (&(next[0][0]), size*size, MPI_UNSIGNED_CHAR, 0, MPI_COMM_WORLD);
+		//MPI_Bcast (&(next[0][0]), size*size, MPI_UNSIGNED_CHAR, (numtasks-1), MPI_COMM_WORLD);
 		tmp = next;
 		next = prev;
 		prev = tmp;
 	}
-	//print(prev,size,rank);
+	if(rank == (numtasks-1)) print(prev,size,rank);
 	free_board(prev,size);
 	free_board(next,size);
   	MPI_Finalize();
