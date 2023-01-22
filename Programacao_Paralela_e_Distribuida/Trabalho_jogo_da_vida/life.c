@@ -39,7 +39,7 @@ int adjacent_to (cell_t ** board, int size, int i, int j) {
 	int sk = (i>0) ? i-1 : i;
 	int ek = (i+1 < size) ? i+1 : i;
 	int sl = (j>0) ? j-1 : j;
-        int el = (j+1 < size) ? j+1 : j;
+    int el = (j+1 < size) ? j+1 : j;
 
 	for (k=sk; k<=ek; k++)
 		for (l=sl; l<=el; l++)
