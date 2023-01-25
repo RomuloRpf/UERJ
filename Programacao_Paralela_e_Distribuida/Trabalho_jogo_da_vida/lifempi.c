@@ -23,14 +23,10 @@ cell_t ** allocate_board (int size) {
 	int	i;
 	for (i=0; i<size; i++)
 		board[i] = &(data[size*i]);
-		//board[i] = (cell_t *) malloc(sizeof(cell_t)*size);
 	return board;
 }
 
 void free_board (cell_t ** board, int size) {
-        /*int     i;
-        for (i=0; i<size; i++)
-                free(board[i]);*/
 	free(board[0]);
 	free(board);
 }
@@ -62,7 +58,6 @@ void play (cell_t ** board, cell_t ** newboard, int size, int numtasks, int rank
   	local_end = (rank + 1) * chuck;
   	if(rank == numtasks - 1) local_end = size;
 
-	//printf("task = %d, end = %d\n", rank, resto);
 	/* for each cell, apply the rules of Life */
 	for (i = local_init; i < local_end; i++) {
 		for (j=0; j<size; j++) {
@@ -73,44 +68,43 @@ void play (cell_t ** board, cell_t ** newboard, int size, int numtasks, int rank
 				if (a > 3) newboard[i][j] = 0;
 		}
 	}
-	if(flag == 1){
-		for(i=0; i<numtasks-1; i++){
-			if(rank == i){
+	if(numtasks > 1){
+		if(flag == 1){
+			if(rank != (numtasks-1)){
 				index = local_init;
+				MPI_Send(&index, 1, MPI_INT, (numtasks-1), tag, MPI_COMM_WORLD);
+				MPI_Send(newboard[index], size*chuck, MPI_UNSIGNED_CHAR, (numtasks-1), tag, MPI_COMM_WORLD);
 			}
-			MPI_Bcast (&index, 1, MPI_INT, i, MPI_COMM_WORLD);
-			MPI_Bcast (newboard[index], size*chuck, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
+			else{
+				for(i=0; i<numtasks-1; i++){
+					MPI_Recv(&index, 1, MPI_INT, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
+					MPI_Recv(newboard[index], size*chuck, MPI_UNSIGNED_CHAR, Stat.MPI_SOURCE, tag, MPI_COMM_WORLD, &Stat);
+				}
+			}
+		}
+		else{
+			if(rank == 0){
+				MPI_Send(newboard[local_end-1], size, MPI_UNSIGNED_CHAR, rank+1, tag, MPI_COMM_WORLD);
+				MPI_Recv(newboard[local_end], size, MPI_UNSIGNED_CHAR, rank+1, tag, MPI_COMM_WORLD, &Stat);
+			}
+			else if((rank > 0) && (rank < (numtasks-1))){
+				MPI_Recv(newboard[local_init-1], size, MPI_UNSIGNED_CHAR, rank-1, tag, MPI_COMM_WORLD, &Stat);
+				MPI_Send(newboard[local_init], size, MPI_UNSIGNED_CHAR, rank-1, tag, MPI_COMM_WORLD);
+				MPI_Send(newboard[local_end-1], size, MPI_UNSIGNED_CHAR, rank+1, tag, MPI_COMM_WORLD);
+				MPI_Recv(newboard[local_end], size, MPI_UNSIGNED_CHAR, rank+1, tag, MPI_COMM_WORLD, &Stat);
+			}
+			else{
+				MPI_Recv(newboard[local_init-1], size, MPI_UNSIGNED_CHAR, rank-1, tag, MPI_COMM_WORLD, &Stat);
+				MPI_Send(newboard[local_init], size, MPI_UNSIGNED_CHAR, rank-1, tag, MPI_COMM_WORLD);
+			}
 		}
 	}
-	else{
-		for(i=0; i<numtasks; i++){
-			if(rank == i){
-				index = local_init;
-				index_e = local_end - 1;
-			}
-			MPI_Bcast (&index, 1, MPI_INT, i, MPI_COMM_WORLD);
-			MPI_Bcast (newboard[index], size, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
-			MPI_Bcast (&index_e, 1, MPI_INT, i, MPI_COMM_WORLD);
-			MPI_Bcast (newboard[index_e], size, MPI_UNSIGNED_CHAR, i, MPI_COMM_WORLD);
-		}
-	}
-	
-	/*if(rank != (numtasks-1)){
-		index = local_init;
-		MPI_Send(&index, 1, MPI_INT, (numtasks-1), tag, MPI_COMM_WORLD);
-		MPI_Send(&(newboard[index][0]), size*chuck, MPI_UNSIGNED_CHAR, (numtasks-1), tag, MPI_COMM_WORLD);
-	}
-	else {
-		MPI_Recv(&index, 1, MPI_INT, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
-    	MPI_Recv(&(newboard[index][0]), size*chuck, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &Stat);
-	}*/
 }
 
 /* print the life board */
-void print (cell_t ** board, int size, int rank) {
+void print (cell_t ** board, int size) {
 	int	i, j;
 	/* for each row */
-	//printf ("%d\n",rank);
 	for (j=0; j<size; j++) {
 		/* print each column position... */
 		for (i=0; i<size; i++) 
@@ -161,8 +155,6 @@ int main(int argc, char *argv[]) {
 	cell_t ** next = allocate_board (size);
 	cell_t ** tmp;
 
-	//print(prev,size,rank);
-
 	int i,j, flag = 0;
 	#ifdef DEBUG
 		printf("Initial \n");
@@ -174,17 +166,15 @@ int main(int argc, char *argv[]) {
 			flag = 1;
 		}
 		play (prev,next,size,numtasks,rank,flag);
-		//print(next,size,rank);
 		#ifdef DEBUG
 			printf("%d ----------\n", i);
 			print (next,size);
 		#endif
-		//MPI_Bcast (&(next[0][0]), size*size, MPI_UNSIGNED_CHAR, (numtasks-1), MPI_COMM_WORLD);
 		tmp = next;
 		next = prev;
 		prev = tmp;
 	}
-	if(rank == (numtasks-1)) print(prev,size,rank);
+	if(rank == (numtasks-1)) print(prev,size);
 	free_board(prev,size);
 	free_board(next,size);
   	MPI_Finalize();
